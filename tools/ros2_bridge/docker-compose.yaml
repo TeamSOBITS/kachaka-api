@@ -14,6 +14,7 @@ services:
     environment:
       - NAMESPACE
       - FRAME_PREFIX
+      - USE_MAP
       - LAUNCHER_CMD
       - API_GRPC_BRIDGE_SERVER_URI
       - ROS_DOMAIN_ID
@@ -24,7 +25,7 @@ services:
       - GROUP_ID
     user: "${USER_ID}:${GROUP_ID}"
     command: >
-      ros2 launch kachaka_grpc_ros2_bridge grpc_ros2_${LAUNCHER_CMD}.launch.xml server_uri:=${API_GRPC_BRIDGE_SERVER_URI} namespace:=${NAMESPACE}
+      ros2 launch kachaka_grpc_ros2_bridge grpc_ros2_${LAUNCHER_CMD}.launch.xml server_uri:=${API_GRPC_BRIDGE_SERVER_URI} namespace:=${NAMESPACE} use_map:=${USE_MAP}
   kachaka_follow:
     image: "kachaka-api:latest"
     networks:
