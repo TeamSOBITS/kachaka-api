@@ -1,21 +1,17 @@
 version: "2.4"
 
-networks:
-  ros2:
-    driver: bridge
-
 services:
   ros2_bridge:
     image: "kachaka-api:latest"
-    networks:
-      - ros2
+    network_mode: "host"
     ipc: "host"
     pid: "host"
     environment:
       - NAMESPACE
       - FRAME_PREFIX
+      - USE_STATE
       - USE_MAP
-      - LAUNCHER_CMD
+      # - LAUNCHER_CMD
       - API_GRPC_BRIDGE_SERVER_URI
       - ROS_DOMAIN_ID
       # - ROS_LOCALHOST_ONLY
@@ -25,11 +21,10 @@ services:
       - GROUP_ID
     user: "${USER_ID}:${GROUP_ID}"
     command: >
-      ros2 launch kachaka_grpc_ros2_bridge grpc_ros2_${LAUNCHER_CMD}.launch.xml server_uri:=${API_GRPC_BRIDGE_SERVER_URI} namespace:=${NAMESPACE} use_map:=${USE_MAP}
+      ros2 launch kachaka_grpc_ros2_bridge grpc_ros2_bridge.launch.py server_uri:=${API_GRPC_BRIDGE_SERVER_URI} namespace:=${NAMESPACE} use_state:=${USE_STATE} use_map:=${USE_MAP}
   kachaka_follow:
     image: "kachaka-api:latest"
-    networks:
-      - ros2
+    network_mode: "host"
     ipc: "host"
     pid: "host"
     environment:
@@ -44,8 +39,7 @@ services:
       ros2 run kachaka_follow follow
   kachaka_speak:
     image: "kachaka-api:latest"
-    networks:
-      - ros2
+    network_mode: "host"
     ipc: "host"
     pid: "host"
     environment:
@@ -60,8 +54,7 @@ services:
       ros2 run kachaka_speak speak
   kachaka_smart_speaker:
     image: "kachaka-api:latest"
-    networks:
-      - ros2
+    network_mode: "host"
     ipc: "host"
     pid: "host"
     environment:
@@ -76,8 +69,7 @@ services:
       ros2 run kachaka_smart_speaker smart_speaker
   kachaka_vision:
     image: "kachaka-api:latest"
-    networks:
-      - ros2
+    network_mode: "host"
     ipc: "host"
     pid: "host"
     environment:

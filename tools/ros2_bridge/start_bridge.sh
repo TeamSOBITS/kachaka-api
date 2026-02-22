@@ -6,10 +6,10 @@ DOCKER_COMPOSE_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "${DOCKER_COMPOSE_DIR}"
 
 usage() {
-    echo "Usage: $0 KACHAKA_IP_ADRESS [KACHAKA_NAME] [KACHAKA_STATE] [USE_MAP] [Option]"
+    echo "Usage: $0 KACHAKA_IP_ADRESS [KACHAKA_NAME] [KACHAKA_STATE] [KACHAKA_MAP] [Option]"
     echo "  KACHAKA_NAME:  kachaka"
     echo "  KACHAKA_STATE: yes/no"
-    echo "  USE_MAP:       yes/no"
+    echo "  KACHAKA_MAP:   yes/no"
     echo "  -d             daemonize"
     exit 1
 }
@@ -33,19 +33,22 @@ else
 fi
 
 if [[ $# -lt 4 ]]; then
-    USE_MAP="True"
+    KACHAKA_MAP="yes"
 else
-    if [[ $4 == "yes" ]]; then
-        USE_MAP="True"
-    else
-        USE_MAP="False"
-    fi
+    KACHAKA_MAP=$4
 fi
 
+
 if [[ "${KACHAKA_STATE}" == "yes" ]]; then
-    LAUNCHER_CMD="bridge"
+    USE_STATE="True"
 else
-    LAUNCHER_CMD="bridge_no_state"
+    USE_STATE="False"
+fi
+
+if [[ "${KACHAKA_MAP}" == "yes" ]]; then
+    USE_MAP="True"
+else
+    USE_MAP="False"
 fi
 
 USER_ID="$(id -u)"
@@ -58,7 +61,7 @@ export GROUP_ID
 KACHAKA_IP=$1
 
 if command -v docker-compose; then
-    API_GRPC_BRIDGE_SERVER_URI="${KACHAKA_IP}:${GRPC_PORT}" NAMESPACE="${NAMESPACE}" FRAME_PREFIX="${FRAME_PREFIX}" LAUNCHER_CMD="${LAUNCHER_CMD}" USE_MAP="${USE_MAP}" docker-compose up "${@:5}" ros2_bridge
+    API_GRPC_BRIDGE_SERVER_URI="${KACHAKA_IP}:${GRPC_PORT}" NAMESPACE="${NAMESPACE}" FRAME_PREFIX="${FRAME_PREFIX}" USE_STATE="${USE_STATE}" USE_MAP="${USE_MAP}" docker-compose up "${@:5}" ros2_bridge
 else
-    API_GRPC_BRIDGE_SERVER_URI="${KACHAKA_IP}:${GRPC_PORT}" NAMESPACE="${NAMESPACE}" FRAME_PREFIX="${FRAME_PREFIX}" LAUNCHER_CMD="${LAUNCHER_CMD}" USE_MAP="${USE_MAP}" docker compose up "${@:5}" ros2_bridge
+    API_GRPC_BRIDGE_SERVER_URI="${KACHAKA_IP}:${GRPC_PORT}" NAMESPACE="${NAMESPACE}" FRAME_PREFIX="${FRAME_PREFIX}" USE_STATE="${USE_STATE}" USE_MAP="${USE_MAP}" docker compose up "${@:5}" ros2_bridge
 fi
