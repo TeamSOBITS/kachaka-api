@@ -21,13 +21,14 @@ namespace kachaka::grpc_ros2_bridge {
 
 class TfStreamClient {
  public:
-  TfStreamClient(std::string frame_prefix,
+  TfStreamClient(std::string frame_prefix, bool use_map,
                  std::shared_ptr<kachaka_api::KachakaApi::Stub> stub,
                  rclcpp::Node* node);
   void ReadStream();
 
  private:
   std::string frame_prefix_;
+  bool use_map_;
   std::shared_ptr<kachaka_api::KachakaApi::Stub> stub_{nullptr};
   rclcpp::Node* node_;
   typename rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr publisher_;

@@ -19,6 +19,7 @@ class LocationType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     LOCATION_TYPE_UNSPECIFIED: _ClassVar[LocationType]
     LOCATION_TYPE_CHARGER: _ClassVar[LocationType]
     LOCATION_TYPE_SHELF_HOME: _ClassVar[LocationType]
+    LOCATION_TYPE_SLAM_MARKER: _ClassVar[LocationType]
 
 class ShelfAppearance(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -55,6 +56,7 @@ POWER_SUPPLY_STATUS_FULL: PowerSupplyStatus
 LOCATION_TYPE_UNSPECIFIED: LocationType
 LOCATION_TYPE_CHARGER: LocationType
 LOCATION_TYPE_SHELF_HOME: LocationType
+LOCATION_TYPE_SLAM_MARKER: LocationType
 SHELF_APPEARANCE_UNSPECIFIED: ShelfAppearance
 SHELF_APPEARANCE_DEFAULT_SHELF: ShelfAppearance
 SHELF_APPEARANCE_KACHAKA_SHELF_3DRAWERS: ShelfAppearance
@@ -1019,6 +1021,24 @@ class ImportMapRequest(_message.Message):
     def __init__(self, data: _Optional[bytes] = ...) -> None: ...
 
 class ImportMapResponse(_message.Message):
+    __slots__ = ("result", "map_id")
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    result: Result
+    map_id: str
+    def __init__(self, result: _Optional[_Union[Result, _Mapping]] = ..., map_id: _Optional[str] = ...) -> None: ...
+
+class ImportImageAsMapRequest(_message.Message):
+    __slots__ = ("data", "charger_pose", "resolution")
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    CHARGER_POSE_FIELD_NUMBER: _ClassVar[int]
+    RESOLUTION_FIELD_NUMBER: _ClassVar[int]
+    data: bytes
+    charger_pose: Pose
+    resolution: float
+    def __init__(self, data: _Optional[bytes] = ..., charger_pose: _Optional[_Union[Pose, _Mapping]] = ..., resolution: _Optional[float] = ...) -> None: ...
+
+class ImportImageAsMapResponse(_message.Message):
     __slots__ = ("result", "map_id")
     RESULT_FIELD_NUMBER: _ClassVar[int]
     MAP_ID_FIELD_NUMBER: _ClassVar[int]

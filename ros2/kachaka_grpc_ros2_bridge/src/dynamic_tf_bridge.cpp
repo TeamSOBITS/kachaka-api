@@ -22,13 +22,16 @@
 namespace {
 bool ConvertGrpcTfToRosTf(
     const kachaka_api::GetDynamicTransformResponse& grpc_msg,
-    tf2_msgs::msg::TFMessage* msg, const std::string& frame_prefix = "") {
+    tf2_msgs::msg::TFMessage* msg, const std::string& frame_prefix = "", const bool& use_map = true) {
   msg->transforms.clear();
   msg->transforms.reserve(grpc_msg.transforms_size());
   for (const auto& transform_grpc : grpc_msg.transforms()) {
+    
     geometry_msgs::msg::TransformStamped transform_ros;
     kachaka::grpc_ros2_bridge::converter::ConvertGrpcHeaderToRos2Header(
         transform_grpc.header(), &(transform_ros.header), frame_prefix);
+
+    if ((!use_map) && (transform_ros.header.frame_id == "map")) continue;
 
     transform_ros.child_frame_id =
         frame_prefix + transform_grpc.child_frame_id();
@@ -50,9 +53,10 @@ bool ConvertGrpcTfToRosTf(
 namespace kachaka::grpc_ros2_bridge {
 
 TfStreamClient::TfStreamClient(
-    std::string frame_prefix,
+    std::string frame_prefix, bool use_map,
     std::shared_ptr<kachaka_api::KachakaApi::Stub> stub, rclcpp::Node* node)
     : frame_prefix_(std::move(frame_prefix)),
+      use_map_(use_map),
       stub_(stub),
       node_(node),
       publisher_(node->create_publisher<tf2_msgs::msg::TFMessage>(
@@ -69,7 +73,7 @@ void TfStreamClient::ReadStream() {
 
   while (reader->Read(&response)) {
     tf2_msgs::msg::TFMessage msg;
-    ConvertGrpcTfToRosTf(response, &msg, frame_prefix_);
+    ConvertGrpcTfToRosTf(response, &msg, frame_prefix_, use_map_);
     publisher_->publish(msg);
   }
   RCLCPP_INFO(node_->get_logger(), "dynamic tf server is stopped.");
