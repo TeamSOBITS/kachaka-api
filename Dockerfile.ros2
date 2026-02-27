@@ -1,13 +1,14 @@
 # syntax=docker/dockerfile:1.6.0
 #=============================================================================
-FROM amd64/ros:humble-ros-core-jammy AS kachaka-api-base-amd64
+FROM amd64/ros:jazzy-ros-core-noble AS kachaka-api-base-amd64
 #-----------------------------------------------------------------------------
-FROM arm64v8/ros:humble-ros-core-jammy AS kachaka-api-base-arm64
+FROM arm64v8/ros:jazzy-ros-core-noble AS kachaka-api-base-arm64
 
 #=============================================================================
-FROM kachaka-api-base-${TARGETARCH} AS kachaka-api-base
+# FROM kachaka-api-base-${TARGETARCH} AS kachaka-api-base
+FROM kachaka-api-base-amd64 AS kachaka-api-base
 
-COPY --from=impactaky/mimic-cross:host-jammy /usr/bin/qemu-aarch64-static /usr/bin
+# COPY --from=impactaky/mimic-cross:host-noble /usr/bin/qemu-aarch64-static /usr/bin
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
@@ -44,7 +45,7 @@ COPY ros2/demos/kachaka_speak/package.xml /ws/src/kachaka_speak/package.xml
 COPY ros2/demos/kachaka_vision/package.xml /ws/src/kachaka_vision/package.xml
 
 RUN rosdep keys --ignore-src --from-paths src \
-    | xargs rosdep resolve --rosdistro humble --os=ubuntu:jammy \
+    | xargs rosdep resolve --rosdistro jazzy --os=ubuntu:noble \
     | grep -v '^#' \
     | sed 's/ \+/\n/g'\
     | sort \
@@ -87,17 +88,18 @@ FROM kachaka-api-ros-base AS kachaka-api-build-base-arm64-arm64
 FROM kachaka-api-ros-base AS kachaka-api-build-base-amd64-amd64
 
 #-----------------------------------------------------------------------------
-FROM kachaka-api-ros-base AS kachaka-api-build-base-amd64-arm64
+# FROM kachaka-api-ros-base AS kachaka-api-build-base-amd64-arm64
 
-COPY --from=impactaky/mimic-cross:host-jammy / /host
-RUN mv /host/mimic-cross-target /mimic-cross
-RUN /mimic-cross/setup.sh
+# COPY --from=impactaky/mimic-cross:host-noble / /host
+# RUN mv /host/mimic-cross-target /mimic-cross
+# RUN /mimic-cross/setup.sh
 
 #-----------------------------------------------------------------------------
-FROM kachaka-api-build-base-${BUILDARCH}-${TARGETARCH} AS kachaka-api-build-base
+# FROM kachaka-api-build-base-${BUILDARCH}-${TARGETARCH} AS kachaka-api-build-base
 
 #=============================================================================
-FROM kachaka-api-build-base AS kachaka-api-build-grpc-ros2-bridge
+# FROM kachaka-api-build-base AS kachaka-api-build-grpc-ros2-bridge
+FROM kachaka-api-build-base-amd64-amd64 AS kachaka-api-build-grpc-ros2-bridge
 
 ARG PREFIX=/opt/kachaka
 
@@ -117,11 +119,12 @@ COPY ros2/kachaka_description /ws/src/kachaka_description
 COPY ros2/kachaka_grpc_ros2_bridge /ws/src/kachaka_grpc_ros2_bridge
 COPY ros2/kachaka_interfaces /ws/src/kachaka_interfaces
 COPY --from=kachaka-api-protogen /ws/gen-src/cpp /ws/src/kachaka_grpc_ros2_bridge/gen-src
-RUN . /opt/ros/humble/setup.sh && \
+RUN . /opt/ros/jazzy/setup.sh && \
     colcon build --install-base ${PREFIX} --merge-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release
 
 #=============================================================================
-FROM kachaka-api-build-base AS kachaka-api-build-ros2-demos
+# FROM kachaka-api-build-base AS kachaka-api-build-ros2-demos
+FROM kachaka-api-build-base-amd64-amd64 AS kachaka-api-build-ros2-demos
 
 ARG PREFIX=/opt/kachaka
 
@@ -170,8 +173,8 @@ FROM ubuntu:22.04 AS kachaka-playground-base-amd64
 
 #-----------------------------------------------------------------------------
 # This image was created by executing the following command within https://github.com/multiarch/ubuntu-core
-# sudo ./update.sh -a arm64 -v jammy -q aarch64 -u v6.1.0-5 -d docker.io/multiarch/ubuntu-core -t arm64
-FROM asia-northeast1-docker.pkg.dev/pfr-flexci/tmp/multiarch/ubuntu-core:KEEP-arm64-jammy AS kachaka-playground-base-arm64
+# sudo ./update.sh -a arm64 -v noble -q aarch64 -u v6.1.0-5 -d docker.io/multiarch/ubuntu-core -t arm64
+FROM asia-northeast1-docker.pkg.dev/pfr-flexci/tmp/multiarch/ubuntu-core:KEEP-arm64-noble AS kachaka-playground-base-arm64
 
 #-----------------------------------------------------------------------------
 FROM kachaka-playground-base-${TARGETARCH} AS kachaka-playground
