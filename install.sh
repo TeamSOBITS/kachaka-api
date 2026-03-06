@@ -4,8 +4,10 @@ echo "╔══╣ Install: Kachaka-API (STARTING) ╠══╗"
 
 
 # Install python dependencies for kachaka-api
-python3 -m pip install \
+python3 -m pip install --break-system-packages \
     --extra-index-url https://pf-robotics.github.io/kachaka-python-packages/simple kachaka-api
+
+pip3 install "numpy<2" --break-system-packages
 
 # Download ROS packages
 sudo apt-get update
