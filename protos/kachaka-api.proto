@@ -106,6 +106,12 @@ message Location {
   bool ignore_voice_recognition = 7;
 }
 
+message LocationDigest {
+  string id = 1;
+  string name = 2;
+  LocationType type = 3;
+}
+
 message ShelfSize {
   double width = 1;
   double depth = 2;
@@ -141,6 +147,11 @@ message Shelf {
   string home_location_id = 8;
   ShelfSpeedMode speed_mode = 9;
   bool ignore_voice_recognition = 10;
+}
+
+message ShelfDigest {
+  string id = 1;
+  string name = 2;
 }
 
 message RosImu {
@@ -256,6 +267,8 @@ message Command {
     // DockAnyShelfWithRegistrationCommand is available only in Kachaka Pro.
     DockAnyShelfWithRegistrationCommand dock_any_shelf_with_registration_command = 18;
     LocalizeCommand localize_command = 19;
+    MoveByVelocityWithMutedSensorsCommand move_by_velocity_with_muted_sensors_command = 22;
+    DepartFromChargerCommand depart_from_charger_command = 23;
   }
 }
 
@@ -278,6 +291,7 @@ message UndockShelfCommand {
 
 message MoveToLocationCommand {
   string target_location_id = 1;
+  string source_location_id = 2;
 }
 
 message ReturnHomeCommand {
@@ -303,6 +317,7 @@ message LockCommand {
 message MoveForwardCommand {
   double distance_meter = 1;
   double speed = 2;  // [m/s]
+  bool mute_sensors = 3;
 }
 
 message RotateInPlaceCommand {
@@ -315,6 +330,14 @@ message DockAnyShelfWithRegistrationCommand {
 }
 
 message LocalizeCommand {
+}
+
+message MoveByVelocityWithMutedSensorsCommand {
+  double signed_velocity = 1;  // [m/s]
+  double move_duration_sec = 2;
+}
+
+message DepartFromChargerCommand {
 }
 
 enum CommandState {
@@ -505,9 +528,19 @@ message GetLocationsResponse {
   string default_location_id = 3;
 }
 
+message GetLocationsDigestResponse {
+  Metadata metadata = 1;
+  repeated LocationDigest locations = 2;
+}
+
 message GetShelvesResponse {
   Metadata metadata = 1;
   repeated Shelf shelves = 2;
+}
+
+message GetShelvesDigestResponse {
+  Metadata metadata = 1;
+  repeated ShelfDigest shelves = 2;
 }
 
 message GetMovingShelfIdResponse {
@@ -617,12 +650,19 @@ message LoadMapPreviewResponse {
   Map map = 2;
 }
 
+enum SwitchMapInheritMethod {
+  SWITCH_MAP_INHERIT_METHOD_UNSPECIFIED = 0;
+  SWITCH_MAP_INHERIT_METHOD_SHELF_ID_BASED = 1;
+  SWITCH_MAP_INHERIT_METHOD_FIDUCIAL_ID_BASED = 2;
+}
+
 message SwitchMapRequest {
   string map_id = 1;
   Pose initial_pose = 2;  // use the charger pose if the message is empty
 
   // Available only in Kachaka Pro. In the standard version, setting this flag to true will throw an error.
   bool inherit_docking_state_and_docked_shelf = 3;
+  SwitchMapInheritMethod docking_state_inherit_method = 4;
 }
 
 message SwitchMapResponse {
@@ -721,6 +761,51 @@ message SetEmergencyStopResponse {
   Result result = 1;
 }
 
+// Sound
+message Sound {
+  string id = 1;
+  string name = 2;
+}
+
+message GetSoundListResponse {
+  Metadata metadata = 1;
+  repeated Sound sounds = 2;
+}
+
+message AddSoundRequest {
+  string name = 1;
+  bytes data = 2;
+}
+
+message AddSoundResponse {
+  Result result = 1;
+  string sound_id = 2;
+}
+
+message DeleteSoundRequest {
+  string sound_id = 1;
+}
+
+message DeleteSoundResponse {
+  Result result = 1;
+}
+
+message PlaySoundRequest {
+  string sound_id = 1;
+  bool loop = 2;
+}
+
+message PlaySoundResponse {
+  Result result = 1;
+}
+
+message StopSoundRequest {
+}
+
+message StopSoundResponse {
+  Result result = 1;
+}
+
 // Services
 service KachakaApi {
   rpc GetRobotSerialNumber (GetRequest) returns (GetRobotSerialNumberResponse);
@@ -755,8 +840,10 @@ service KachakaApi {
   rpc Proceed (EmptyRequest) returns (ProceedResponse);
   // Locations
   rpc GetLocations (GetRequest) returns (GetLocationsResponse);
+  rpc GetLocationsDigest (GetRequest) returns (GetLocationsDigestResponse);
   // Shelves
   rpc GetShelves (GetRequest) returns (GetShelvesResponse);
+  rpc GetShelvesDigest (GetRequest) returns (GetShelvesDigestResponse);
   rpc GetMovingShelfId (GetRequest) returns (GetMovingShelfIdResponse);
   rpc ResetShelfPose (ResetShelfPoseRequest) returns (ResetShelfPoseResponse);
   // Auto homing
@@ -790,4 +877,10 @@ service KachakaApi {
   // Transform
   rpc GetStaticTransform (GetRequest) returns (GetStaticTransformResponse);
   rpc GetDynamicTransform (EmptyRequest) returns (stream GetDynamicTransformResponse);
+  // Sound
+  rpc GetSoundList (GetRequest) returns (GetSoundListResponse);
+  rpc AddSound (AddSoundRequest) returns (AddSoundResponse);
+  rpc DeleteSound (DeleteSoundRequest) returns (DeleteSoundResponse);
+  rpc PlaySound (PlaySoundRequest) returns (PlaySoundResponse);
+  rpc StopSound (StopSoundRequest) returns (StopSoundResponse);
 }

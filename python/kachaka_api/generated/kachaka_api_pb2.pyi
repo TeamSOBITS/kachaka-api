@@ -48,6 +48,12 @@ class CommandState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     COMMAND_STATE_UNSPECIFIED: _ClassVar[CommandState]
     COMMAND_STATE_PENDING: _ClassVar[CommandState]
     COMMAND_STATE_RUNNING: _ClassVar[CommandState]
+
+class SwitchMapInheritMethod(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    SWITCH_MAP_INHERIT_METHOD_UNSPECIFIED: _ClassVar[SwitchMapInheritMethod]
+    SWITCH_MAP_INHERIT_METHOD_SHELF_ID_BASED: _ClassVar[SwitchMapInheritMethod]
+    SWITCH_MAP_INHERIT_METHOD_FIDUCIAL_ID_BASED: _ClassVar[SwitchMapInheritMethod]
 POWER_SUPPLY_STATUS_UNSPECIFIED: PowerSupplyStatus
 POWER_SUPPLY_STATUS_CHARGING: PowerSupplyStatus
 POWER_SUPPLY_STATUS_DISCHARGING: PowerSupplyStatus
@@ -73,6 +79,9 @@ OBJECT_LABEL_DOOR: ObjectLabel
 COMMAND_STATE_UNSPECIFIED: CommandState
 COMMAND_STATE_PENDING: CommandState
 COMMAND_STATE_RUNNING: CommandState
+SWITCH_MAP_INHERIT_METHOD_UNSPECIFIED: SwitchMapInheritMethod
+SWITCH_MAP_INHERIT_METHOD_SHELF_ID_BASED: SwitchMapInheritMethod
+SWITCH_MAP_INHERIT_METHOD_FIDUCIAL_ID_BASED: SwitchMapInheritMethod
 
 class Metadata(_message.Message):
     __slots__ = ("cursor",)
@@ -200,6 +209,16 @@ class Location(_message.Message):
     ignore_voice_recognition: bool
     def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., pose: _Optional[_Union[Pose, _Mapping]] = ..., type: _Optional[_Union[LocationType, str]] = ..., undock_shelf_aligning_to_wall: bool = ..., undock_shelf_avoiding_obstacles: bool = ..., ignore_voice_recognition: bool = ...) -> None: ...
 
+class LocationDigest(_message.Message):
+    __slots__ = ("id", "name", "type")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    name: str
+    type: LocationType
+    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., type: _Optional[_Union[LocationType, str]] = ...) -> None: ...
+
 class ShelfSize(_message.Message):
     __slots__ = ("width", "depth", "height")
     WIDTH_FIELD_NUMBER: _ClassVar[int]
@@ -239,6 +258,14 @@ class Shelf(_message.Message):
     speed_mode: ShelfSpeedMode
     ignore_voice_recognition: bool
     def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., pose: _Optional[_Union[Pose, _Mapping]] = ..., size: _Optional[_Union[ShelfSize, _Mapping]] = ..., appearance: _Optional[_Union[ShelfAppearance, str]] = ..., recognizable_names: _Optional[_Iterable[_Union[RecognizableName, _Mapping]]] = ..., home_location_id: _Optional[str] = ..., speed_mode: _Optional[_Union[ShelfSpeedMode, str]] = ..., ignore_voice_recognition: bool = ...) -> None: ...
+
+class ShelfDigest(_message.Message):
+    __slots__ = ("id", "name")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    name: str
+    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...
 
 class RosImu(_message.Message):
     __slots__ = ("header", "orientation", "orientation_covariance", "angular_velocity", "angular_velocity_covariance", "linear_acceleration", "linear_acceleration_covariance")
@@ -397,7 +424,7 @@ class ObjectDetectionFeatures(_message.Message):
     def __init__(self, name: _Optional[str] = ..., shape: _Optional[_Iterable[int]] = ..., data: _Optional[_Iterable[float]] = ...) -> None: ...
 
 class Command(_message.Message):
-    __slots__ = ("move_shelf_command", "return_shelf_command", "undock_shelf_command", "move_to_location_command", "return_home_command", "dock_shelf_command", "speak_command", "move_to_pose_command", "lock_command", "move_forward_command", "rotate_in_place_command", "dock_any_shelf_with_registration_command", "localize_command")
+    __slots__ = ("move_shelf_command", "return_shelf_command", "undock_shelf_command", "move_to_location_command", "return_home_command", "dock_shelf_command", "speak_command", "move_to_pose_command", "lock_command", "move_forward_command", "rotate_in_place_command", "dock_any_shelf_with_registration_command", "localize_command", "move_by_velocity_with_muted_sensors_command", "depart_from_charger_command")
     MOVE_SHELF_COMMAND_FIELD_NUMBER: _ClassVar[int]
     RETURN_SHELF_COMMAND_FIELD_NUMBER: _ClassVar[int]
     UNDOCK_SHELF_COMMAND_FIELD_NUMBER: _ClassVar[int]
@@ -411,6 +438,8 @@ class Command(_message.Message):
     ROTATE_IN_PLACE_COMMAND_FIELD_NUMBER: _ClassVar[int]
     DOCK_ANY_SHELF_WITH_REGISTRATION_COMMAND_FIELD_NUMBER: _ClassVar[int]
     LOCALIZE_COMMAND_FIELD_NUMBER: _ClassVar[int]
+    MOVE_BY_VELOCITY_WITH_MUTED_SENSORS_COMMAND_FIELD_NUMBER: _ClassVar[int]
+    DEPART_FROM_CHARGER_COMMAND_FIELD_NUMBER: _ClassVar[int]
     move_shelf_command: MoveShelfCommand
     return_shelf_command: ReturnShelfCommand
     undock_shelf_command: UndockShelfCommand
@@ -424,7 +453,9 @@ class Command(_message.Message):
     rotate_in_place_command: RotateInPlaceCommand
     dock_any_shelf_with_registration_command: DockAnyShelfWithRegistrationCommand
     localize_command: LocalizeCommand
-    def __init__(self, move_shelf_command: _Optional[_Union[MoveShelfCommand, _Mapping]] = ..., return_shelf_command: _Optional[_Union[ReturnShelfCommand, _Mapping]] = ..., undock_shelf_command: _Optional[_Union[UndockShelfCommand, _Mapping]] = ..., move_to_location_command: _Optional[_Union[MoveToLocationCommand, _Mapping]] = ..., return_home_command: _Optional[_Union[ReturnHomeCommand, _Mapping]] = ..., dock_shelf_command: _Optional[_Union[DockShelfCommand, _Mapping]] = ..., speak_command: _Optional[_Union[SpeakCommand, _Mapping]] = ..., move_to_pose_command: _Optional[_Union[MoveToPoseCommand, _Mapping]] = ..., lock_command: _Optional[_Union[LockCommand, _Mapping]] = ..., move_forward_command: _Optional[_Union[MoveForwardCommand, _Mapping]] = ..., rotate_in_place_command: _Optional[_Union[RotateInPlaceCommand, _Mapping]] = ..., dock_any_shelf_with_registration_command: _Optional[_Union[DockAnyShelfWithRegistrationCommand, _Mapping]] = ..., localize_command: _Optional[_Union[LocalizeCommand, _Mapping]] = ...) -> None: ...
+    move_by_velocity_with_muted_sensors_command: MoveByVelocityWithMutedSensorsCommand
+    depart_from_charger_command: DepartFromChargerCommand
+    def __init__(self, move_shelf_command: _Optional[_Union[MoveShelfCommand, _Mapping]] = ..., return_shelf_command: _Optional[_Union[ReturnShelfCommand, _Mapping]] = ..., undock_shelf_command: _Optional[_Union[UndockShelfCommand, _Mapping]] = ..., move_to_location_command: _Optional[_Union[MoveToLocationCommand, _Mapping]] = ..., return_home_command: _Optional[_Union[ReturnHomeCommand, _Mapping]] = ..., dock_shelf_command: _Optional[_Union[DockShelfCommand, _Mapping]] = ..., speak_command: _Optional[_Union[SpeakCommand, _Mapping]] = ..., move_to_pose_command: _Optional[_Union[MoveToPoseCommand, _Mapping]] = ..., lock_command: _Optional[_Union[LockCommand, _Mapping]] = ..., move_forward_command: _Optional[_Union[MoveForwardCommand, _Mapping]] = ..., rotate_in_place_command: _Optional[_Union[RotateInPlaceCommand, _Mapping]] = ..., dock_any_shelf_with_registration_command: _Optional[_Union[DockAnyShelfWithRegistrationCommand, _Mapping]] = ..., localize_command: _Optional[_Union[LocalizeCommand, _Mapping]] = ..., move_by_velocity_with_muted_sensors_command: _Optional[_Union[MoveByVelocityWithMutedSensorsCommand, _Mapping]] = ..., depart_from_charger_command: _Optional[_Union[DepartFromChargerCommand, _Mapping]] = ...) -> None: ...
 
 class MoveShelfCommand(_message.Message):
     __slots__ = ("target_shelf_id", "destination_location_id", "undock_on_destination")
@@ -449,10 +480,12 @@ class UndockShelfCommand(_message.Message):
     def __init__(self, target_shelf_id: _Optional[str] = ...) -> None: ...
 
 class MoveToLocationCommand(_message.Message):
-    __slots__ = ("target_location_id",)
+    __slots__ = ("target_location_id", "source_location_id")
     TARGET_LOCATION_ID_FIELD_NUMBER: _ClassVar[int]
+    SOURCE_LOCATION_ID_FIELD_NUMBER: _ClassVar[int]
     target_location_id: str
-    def __init__(self, target_location_id: _Optional[str] = ...) -> None: ...
+    source_location_id: str
+    def __init__(self, target_location_id: _Optional[str] = ..., source_location_id: _Optional[str] = ...) -> None: ...
 
 class ReturnHomeCommand(_message.Message):
     __slots__ = ()
@@ -485,12 +518,14 @@ class LockCommand(_message.Message):
     def __init__(self, duration_sec: _Optional[float] = ...) -> None: ...
 
 class MoveForwardCommand(_message.Message):
-    __slots__ = ("distance_meter", "speed")
+    __slots__ = ("distance_meter", "speed", "mute_sensors")
     DISTANCE_METER_FIELD_NUMBER: _ClassVar[int]
     SPEED_FIELD_NUMBER: _ClassVar[int]
+    MUTE_SENSORS_FIELD_NUMBER: _ClassVar[int]
     distance_meter: float
     speed: float
-    def __init__(self, distance_meter: _Optional[float] = ..., speed: _Optional[float] = ...) -> None: ...
+    mute_sensors: bool
+    def __init__(self, distance_meter: _Optional[float] = ..., speed: _Optional[float] = ..., mute_sensors: bool = ...) -> None: ...
 
 class RotateInPlaceCommand(_message.Message):
     __slots__ = ("angle_radian",)
@@ -507,6 +542,18 @@ class DockAnyShelfWithRegistrationCommand(_message.Message):
     def __init__(self, target_location_id: _Optional[str] = ..., dock_forward: bool = ...) -> None: ...
 
 class LocalizeCommand(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class MoveByVelocityWithMutedSensorsCommand(_message.Message):
+    __slots__ = ("signed_velocity", "move_duration_sec")
+    SIGNED_VELOCITY_FIELD_NUMBER: _ClassVar[int]
+    MOVE_DURATION_SEC_FIELD_NUMBER: _ClassVar[int]
+    signed_velocity: float
+    move_duration_sec: float
+    def __init__(self, signed_velocity: _Optional[float] = ..., move_duration_sec: _Optional[float] = ...) -> None: ...
+
+class DepartFromChargerCommand(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
@@ -802,6 +849,14 @@ class GetLocationsResponse(_message.Message):
     default_location_id: str
     def __init__(self, metadata: _Optional[_Union[Metadata, _Mapping]] = ..., locations: _Optional[_Iterable[_Union[Location, _Mapping]]] = ..., default_location_id: _Optional[str] = ...) -> None: ...
 
+class GetLocationsDigestResponse(_message.Message):
+    __slots__ = ("metadata", "locations")
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    LOCATIONS_FIELD_NUMBER: _ClassVar[int]
+    metadata: Metadata
+    locations: _containers.RepeatedCompositeFieldContainer[LocationDigest]
+    def __init__(self, metadata: _Optional[_Union[Metadata, _Mapping]] = ..., locations: _Optional[_Iterable[_Union[LocationDigest, _Mapping]]] = ...) -> None: ...
+
 class GetShelvesResponse(_message.Message):
     __slots__ = ("metadata", "shelves")
     METADATA_FIELD_NUMBER: _ClassVar[int]
@@ -809,6 +864,14 @@ class GetShelvesResponse(_message.Message):
     metadata: Metadata
     shelves: _containers.RepeatedCompositeFieldContainer[Shelf]
     def __init__(self, metadata: _Optional[_Union[Metadata, _Mapping]] = ..., shelves: _Optional[_Iterable[_Union[Shelf, _Mapping]]] = ...) -> None: ...
+
+class GetShelvesDigestResponse(_message.Message):
+    __slots__ = ("metadata", "shelves")
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    SHELVES_FIELD_NUMBER: _ClassVar[int]
+    metadata: Metadata
+    shelves: _containers.RepeatedCompositeFieldContainer[ShelfDigest]
+    def __init__(self, metadata: _Optional[_Union[Metadata, _Mapping]] = ..., shelves: _Optional[_Iterable[_Union[ShelfDigest, _Mapping]]] = ...) -> None: ...
 
 class GetMovingShelfIdResponse(_message.Message):
     __slots__ = ("metadata", "shelf_id")
@@ -975,14 +1038,16 @@ class LoadMapPreviewResponse(_message.Message):
     def __init__(self, result: _Optional[_Union[Result, _Mapping]] = ..., map: _Optional[_Union[Map, _Mapping]] = ...) -> None: ...
 
 class SwitchMapRequest(_message.Message):
-    __slots__ = ("map_id", "initial_pose", "inherit_docking_state_and_docked_shelf")
+    __slots__ = ("map_id", "initial_pose", "inherit_docking_state_and_docked_shelf", "docking_state_inherit_method")
     MAP_ID_FIELD_NUMBER: _ClassVar[int]
     INITIAL_POSE_FIELD_NUMBER: _ClassVar[int]
     INHERIT_DOCKING_STATE_AND_DOCKED_SHELF_FIELD_NUMBER: _ClassVar[int]
+    DOCKING_STATE_INHERIT_METHOD_FIELD_NUMBER: _ClassVar[int]
     map_id: str
     initial_pose: Pose
     inherit_docking_state_and_docked_shelf: bool
-    def __init__(self, map_id: _Optional[str] = ..., initial_pose: _Optional[_Union[Pose, _Mapping]] = ..., inherit_docking_state_and_docked_shelf: bool = ...) -> None: ...
+    docking_state_inherit_method: SwitchMapInheritMethod
+    def __init__(self, map_id: _Optional[str] = ..., initial_pose: _Optional[_Union[Pose, _Mapping]] = ..., inherit_docking_state_and_docked_shelf: bool = ..., docking_state_inherit_method: _Optional[_Union[SwitchMapInheritMethod, str]] = ...) -> None: ...
 
 class SwitchMapResponse(_message.Message):
     __slots__ = ("result",)
@@ -1125,6 +1190,74 @@ class RestartRobotResponse(_message.Message):
     def __init__(self, result: _Optional[_Union[Result, _Mapping]] = ...) -> None: ...
 
 class SetEmergencyStopResponse(_message.Message):
+    __slots__ = ("result",)
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    result: Result
+    def __init__(self, result: _Optional[_Union[Result, _Mapping]] = ...) -> None: ...
+
+class Sound(_message.Message):
+    __slots__ = ("id", "name")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    name: str
+    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...
+
+class GetSoundListResponse(_message.Message):
+    __slots__ = ("metadata", "sounds")
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    SOUNDS_FIELD_NUMBER: _ClassVar[int]
+    metadata: Metadata
+    sounds: _containers.RepeatedCompositeFieldContainer[Sound]
+    def __init__(self, metadata: _Optional[_Union[Metadata, _Mapping]] = ..., sounds: _Optional[_Iterable[_Union[Sound, _Mapping]]] = ...) -> None: ...
+
+class AddSoundRequest(_message.Message):
+    __slots__ = ("name", "data")
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    data: bytes
+    def __init__(self, name: _Optional[str] = ..., data: _Optional[bytes] = ...) -> None: ...
+
+class AddSoundResponse(_message.Message):
+    __slots__ = ("result", "sound_id")
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    SOUND_ID_FIELD_NUMBER: _ClassVar[int]
+    result: Result
+    sound_id: str
+    def __init__(self, result: _Optional[_Union[Result, _Mapping]] = ..., sound_id: _Optional[str] = ...) -> None: ...
+
+class DeleteSoundRequest(_message.Message):
+    __slots__ = ("sound_id",)
+    SOUND_ID_FIELD_NUMBER: _ClassVar[int]
+    sound_id: str
+    def __init__(self, sound_id: _Optional[str] = ...) -> None: ...
+
+class DeleteSoundResponse(_message.Message):
+    __slots__ = ("result",)
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    result: Result
+    def __init__(self, result: _Optional[_Union[Result, _Mapping]] = ...) -> None: ...
+
+class PlaySoundRequest(_message.Message):
+    __slots__ = ("sound_id", "loop")
+    SOUND_ID_FIELD_NUMBER: _ClassVar[int]
+    LOOP_FIELD_NUMBER: _ClassVar[int]
+    sound_id: str
+    loop: bool
+    def __init__(self, sound_id: _Optional[str] = ..., loop: bool = ...) -> None: ...
+
+class PlaySoundResponse(_message.Message):
+    __slots__ = ("result",)
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    result: Result
+    def __init__(self, result: _Optional[_Union[Result, _Mapping]] = ...) -> None: ...
+
+class StopSoundRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class StopSoundResponse(_message.Message):
     __slots__ = ("result",)
     RESULT_FIELD_NUMBER: _ClassVar[int]
     result: Result
