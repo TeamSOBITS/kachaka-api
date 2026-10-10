@@ -191,6 +191,15 @@
         </geometry>
         <material name="body" />
       </visual>
+      <!-- Tiny placeholder; without it Isaac/PhysX gives a visual-only link a default 1 kg -->
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0"
+                rpy="0 0 0" />
+        <inertia ixx="1e-7" ixy="0" ixz="0"
+                 iyy="1e-7" iyz="0"
+                 izz="1e-7" />
+      </inertial>
     </link>
 
     <!-- Camera(front) -->
